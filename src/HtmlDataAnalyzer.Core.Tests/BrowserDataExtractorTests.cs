@@ -3,12 +3,21 @@ namespace HtmlDataAnalyzer.Core.Tests
     public class BrowserDataExtractorTests
     {
         [Fact]
-        public async Task ExecuteSite_Test()
+        public async Task InitializeBrowser()
         {
-        //    var browserDataExtractor = new BrowserDataExtractor();
-        //    var result = await browserDataExtractor.ExecuteSiteAsync("https://google.com");
+            var browserDataExtractor = new BrowserDataExtractor();
+            await browserDataExtractor.InitializeBrowser();
+        }
 
-        //    Assert.NotNull(result);
+        [Theory]
+        [InlineData("https://google.com")]
+        [InlineData("https://facebook.com")]
+        public async Task ExecuteAnalyzingAsync(string url)
+        {
+            var browserDataExtractor = new BrowserDataExtractor();
+            var result = await browserDataExtractor.ExecuteAnalyzingAsync(url);
+
+            Assert.NotNull(result);
         }
     }
 }
