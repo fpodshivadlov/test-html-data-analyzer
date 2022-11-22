@@ -1,6 +1,6 @@
 ﻿namespace HtmlDataAnalyzer.Core.JavaScriptWrapping
 {
-    internal class ElementData
+    internal class ElementContent
     {
         public const string Expression = "e => ({ content: e.textContent })";
 
