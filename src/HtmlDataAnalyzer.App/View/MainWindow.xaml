@@ -20,7 +20,7 @@
         <converter:ByteArrayToBitmapSourceConverter x:Key="ByteArrayToBitmapSource"/>
     </Window.Resources>
     <Window.DataContext>
-        <viewModel:ApplicationViewModel/>
+        <viewModel:MainViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid Visibility="{Binding IsLoading, Converter={StaticResource TrueVisible}, FallbackValue=Collapsed}">

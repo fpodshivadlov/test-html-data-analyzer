@@ -1,5 +1,6 @@
 ﻿using HtmlDataAnalyzer.Core.JavaScriptWrapping;
 using HtmlDataAnalyzer.Core.Model;
+using HtmlDataAnalyzer.Core.PuppeteerWrapper;
 using PuppeteerSharp;
 
 namespace HtmlDataAnalyzer.Core.Parsing
@@ -9,8 +10,13 @@ namespace HtmlDataAnalyzer.Core.Parsing
         public static async Task<PageContentResultsModel> AnalyzePageAsync(
             IPage page)
         {
-            var words = await ResolveTextElements(page);
-            var images = await ResolveImages(page);
+            var roots = await ResolveRoots(page)
+                .ConfigureAwait(false);
+
+            var words = await ResolveTextElements(roots)
+                .ConfigureAwait(false);
+            var images = await ResolveImages(roots)
+                .ConfigureAwait(false);
 
             var result = new PageContentResultsModel
             {
@@ -21,23 +27,52 @@ namespace HtmlDataAnalyzer.Core.Parsing
             return result;
         }
 
-        private static async Task<IDictionary<string, int>> ResolveTextElements(IPage page)
+        private static async Task<ICollection<IRootWrapper>> ResolveRoots(IPage page)
         {
-            var elementHandles = await page.XPathAsync("//text()");
-
-            var filteredContentItems = new List<string>();
-            foreach (var elementHandle in elementHandles)
+            var result = new List<IRootWrapper>
             {
-                var isVisible = await ResolveVisibility(elementHandle);
-                if (isVisible)
-                {
-                    var elementData = await page.EvaluateFunctionAsync<ElementContent>(
-                        ElementContent.Expression,
-                        elementHandle);
+                new PageWrapper(page),
+            };
 
-                    if (!string.IsNullOrEmpty(elementData.Content))
+            var iframesElements = await page.XPathAsync("//iframe")
+                .ConfigureAwait(false);
+
+            foreach (var iframeElement in iframesElements)
+            {
+                var iframe = await iframeElement.ContentFrameAsync()
+                    .ConfigureAwait(false);
+
+                result.Add(new IframeWrapper(iframe));
+            }
+
+            return result;
+        }
+
+        private static async Task<IDictionary<string, int>> ResolveTextElements(
+            IEnumerable<IRootWrapper> roots)
+        {
+            var filteredContentItems = new List<string>();
+
+            foreach (var root in roots)
+            {
+                var elementHandles = await root.XPathAsync("//text()")
+                    .ConfigureAwait(false);
+
+                foreach (var elementHandle in elementHandles)
+                {
+                    var isVisible = await ResolveVisibility(elementHandle)
+                        .ConfigureAwait(false);
+                    if (isVisible)
                     {
-                        filteredContentItems.Add(elementData.Content);
+                        var elementData = await root.EvaluateFunctionAsync<ElementContent>(
+                            ElementContent.Expression,
+                            elementHandle)
+                            .ConfigureAwait(false);
+
+                        if (!string.IsNullOrEmpty(elementData.Content))
+                        {
+                            filteredContentItems.Add(elementData.Content);
+                        }
                     }
                 }
             }
@@ -47,27 +82,35 @@ namespace HtmlDataAnalyzer.Core.Parsing
             return words;
         }
 
-        private static async Task<ICollection<ImageDataModel>> ResolveImages(IPage page)
+        private static async Task<ICollection<ImageDataModel>> ResolveImages(
+            IEnumerable<IRootWrapper> roots)
         {
-            var elementHandles = await page.XPathAsync("//img");
-
             var result = new List<ImageDataModel>();
-            foreach (var elementHandle in elementHandles)
-            {
-                var isVisible = await ResolveVisibility(elementHandle, true);
-                if (isVisible)
-                {
-                    var data = await page.EvaluateFunctionAsync<ImgData>(
-                        ImgData.Expression,
-                        elementHandle);
 
-                    if (data?.Base64Png != null)
+            foreach (var root in roots)
+            {
+                var elementHandles = await root.XPathAsync("//img")
+                    .ConfigureAwait(false);
+
+                foreach (var elementHandle in elementHandles)
+                {
+                    var isVisible = await ResolveVisibility(elementHandle, false)
+                        .ConfigureAwait(false);
+                    if (isVisible)
                     {
-                        result.Add(new ImageDataModel
+                        var data = await root.EvaluateFunctionAsync<ImgData>(
+                                ImgData.Expression,
+                                elementHandle)
+                            .ConfigureAwait(false);
+
+                        if (data?.Base64Png != null)
                         {
-                            Name = data.Alt,
-                            PngImage = Convert.FromBase64String(data.Base64Png),
-                        });
+                            result.Add(new ImageDataModel
+                            {
+                                Name = data.Alt,
+                                PngImage = Convert.FromBase64String(data.Base64Png),
+                            });
+                        }
                     }
                 }
             }
@@ -78,7 +121,10 @@ namespace HtmlDataAnalyzer.Core.Parsing
         private static async Task<bool> ResolveVisibility(
             IElementHandle elementHandle, bool visibilityFallback = false)
         {
-            var boundingBox = await elementHandle.BoundingBoxAsync();
+            var a = await elementHandle.BoxModelAsync()
+                .ConfigureAwait(false);
+            var boundingBox = await elementHandle.BoundingBoxAsync()
+                .ConfigureAwait(false);
 
             // If we cannot determine visibility, consider `visibilityFallback`
             // ToDo: make configurable

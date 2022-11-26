@@ -11,10 +11,8 @@ namespace HtmlDataAnalyzer.Core.Tests
             using var browserFetcher = new BrowserFetcher();
 
             await browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Headless = true
-            });
+            var browser = await Puppeteer.LaunchAsync(
+                Utils.CreateLaunchOptions());
 
             return browser;
         }

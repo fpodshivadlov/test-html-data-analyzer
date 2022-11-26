@@ -11,7 +11,7 @@ using HtmlDataAnalyzer.Core.Model;
 
 namespace HtmlDataAnalyzer.App.ViewModel
 {
-    internal class ApplicationViewModel : BaseViewModel
+    internal class MainViewModel : BaseViewModel
     {
         private readonly BrowserDataExtractor browserDataExtractor;
 
@@ -54,7 +54,7 @@ namespace HtmlDataAnalyzer.App.ViewModel
         public ICommand InitCommand { get; }
         public AsyncCommand RunAnalysis { get; set; }
 
-        public ApplicationViewModel()
+        public MainViewModel()
         {
             browserDataExtractor = new BrowserDataExtractor();
 
