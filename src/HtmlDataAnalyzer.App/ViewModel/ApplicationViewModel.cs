@@ -58,7 +58,7 @@ namespace HtmlDataAnalyzer.App.ViewModel
         {
             browserDataExtractor = new BrowserDataExtractor();
 
-            Url = "https://google.com";
+            Url = "https://instagram.com";
 
             InitCommand = new AsyncCommand(ExecuteInitAsync);
             RunAnalysis = new AsyncCommand(RunAnalysisAsync);
