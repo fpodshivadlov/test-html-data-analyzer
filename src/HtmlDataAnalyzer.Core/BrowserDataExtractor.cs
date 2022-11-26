@@ -20,11 +20,17 @@ namespace HtmlDataAnalyzer.Core
             await InitializeBrowser();
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                Headless = true
+                Headless = true,
+                Args = new []
+                {
+                    "--disable-web-security",
+                    "--enable-usermedia-screen-capturing",
+                    "--allow-http-screen-capture",
+                },
             });
 
             var page = await browser.NewPageAsync();
-            await page.GoToAsync(url);
+            await page.GoToAsync(url, WaitUntilNavigation.Load);
 
             await Task.Delay(loadDelay ?? TimeSpan.Zero);
 

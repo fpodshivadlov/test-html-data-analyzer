@@ -23,12 +23,13 @@ namespace HtmlDataAnalyzer.Core.Parsing
 
         private static async Task<IDictionary<string, int>> ResolveTextElements(IPage page)
         {
-            var textElementHandles = await page.XPathAsync("//text()");
+            var elementHandles = await page.XPathAsync("//text()");
 
             var filteredContentItems = new List<string>();
-            foreach (var elementHandle in textElementHandles)
+            foreach (var elementHandle in elementHandles)
             {
-                if (await IsElementVisible(elementHandle))
+                var isVisible = await ResolveVisibility(elementHandle);
+                if (isVisible)
                 {
                     var elementData = await page.EvaluateFunctionAsync<ElementContent>(
                         ElementContent.Expression,
@@ -48,23 +49,24 @@ namespace HtmlDataAnalyzer.Core.Parsing
 
         private static async Task<ICollection<ImageDataModel>> ResolveImages(IPage page)
         {
-            var textElementHandles = await page.XPathAsync("//img");
+            var elementHandles = await page.XPathAsync("//img");
 
             var result = new List<ImageDataModel>();
-            foreach (var elementHandle in textElementHandles)
+            foreach (var elementHandle in elementHandles)
             {
-                if (await IsElementVisible(elementHandle))
+                var isVisible = await ResolveVisibility(elementHandle, true);
+                if (isVisible)
                 {
                     var data = await page.EvaluateFunctionAsync<ImgData>(
                         ImgData.Expression,
                         elementHandle);
 
-                    if (!string.IsNullOrEmpty(data.Src))
+                    if (data?.Base64Png != null)
                     {
                         result.Add(new ImageDataModel
                         {
                             Name = data.Alt,
-                            Url = data.Src,
+                            PngImage = Convert.FromBase64String(data.Base64Png),
                         });
                     }
                 }
@@ -73,11 +75,18 @@ namespace HtmlDataAnalyzer.Core.Parsing
             return result;
         }
 
-        private static async Task<bool> IsElementVisible(IElementHandle elementHandle)
+        private static async Task<bool> ResolveVisibility(
+            IElementHandle elementHandle, bool visibilityFallback = false)
         {
             var boundingBox = await elementHandle.BoundingBoxAsync();
-            return boundingBox is { Width: > 0, Height: > 0 };
-        }
 
+            // If we cannot determine visibility, consider `visibilityFallback`
+            // ToDo: make configurable
+            if (boundingBox == null)
+                return visibilityFallback;
+
+            var isVisible = boundingBox is { Width: > 0, Height: > 0 };
+            return isVisible;
+        }
     }
 }

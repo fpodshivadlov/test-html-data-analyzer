@@ -16,6 +16,7 @@
     <Window.Resources>
         <converter:BooleanToVisibilityConverter x:Key="TrueVisible" True="Visible" False="Collapsed"/>
         <converter:BooleanToVisibilityConverter x:Key="TrueNotVisible" True="Collapsed" False="Visible"/>
+        <converter:ByteArrayToBitmapSourceConverter x:Key="ByteArrayToBitmapSource"/>
     </Window.Resources>
     <Window.DataContext>
         <viewModel:ApplicationViewModel/>
@@ -51,7 +52,14 @@
                 <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Images}" Margin="210,0,0,0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Url}" ToolTip="{Binding Name}"/>
+                            <ListBoxItem HorizontalAlignment="Center">
+                                <Image 
+                                    Source="{Binding PngImage, Converter={StaticResource ByteArrayToBitmapSource}}"
+                                    ToolTip="{Binding Name}"
+                                    Stretch="UniformToFill"
+                                    StretchDirection="DownOnly"
+                                />
+                            </ListBoxItem>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

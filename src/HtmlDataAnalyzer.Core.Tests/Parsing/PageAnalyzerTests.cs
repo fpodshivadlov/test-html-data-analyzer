@@ -39,7 +39,9 @@ namespace HtmlDataAnalyzer.Core.Tests.Parsing
 
             Assert.NotNull(result.Images);
             Assert.Contains(result.Images, x => x.Name?.Contains("Visible") ?? false);
-            Assert.Equal(1, result.Images.Count);
+            Assert.Equal(2, result.Images.Count);
+
+            Assert.Contains(result.Images, x => x.PngImage != null);
         }
     }
 }
