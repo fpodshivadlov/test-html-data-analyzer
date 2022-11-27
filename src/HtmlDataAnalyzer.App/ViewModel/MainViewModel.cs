@@ -8,6 +8,7 @@ using System.Windows.Input;
 using HtmlDataAnalyzer.Core;
 using AsyncAwaitBestPractices.MVVM;
 using HtmlDataAnalyzer.Core.Model;
+using System.Windows;
 
 namespace HtmlDataAnalyzer.App.ViewModel
 {
@@ -61,7 +62,7 @@ namespace HtmlDataAnalyzer.App.ViewModel
             Url = "https://instagram.com";
 
             InitCommand = new AsyncCommand(ExecuteInitAsync);
-            RunAnalysis = new AsyncCommand(RunAnalysisAsync);
+            RunAnalysis = new AsyncCommand(RunAnalysisAsyncSafe);
         }
 
         private async Task ExecuteInitAsync()
@@ -71,11 +72,25 @@ namespace HtmlDataAnalyzer.App.ViewModel
             IsLoading = false;
         }
 
+        private async Task RunAnalysisAsyncSafe()
+        {
+            IsLoading = true;
+            try
+            {
+                await RunAnalysisAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error just occurred: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            IsLoading = false;
+        }
+
         private async Task RunAnalysisAsync()
         {
             Debug.Assert(Url != null, nameof(Url) + " != null");
 
-            IsLoading = true;
             var result = await browserDataExtractor.ExecuteAnalyzingAsync(
                 Url, 
                 TimeSpan.FromMilliseconds(WaitingTimeMs));
@@ -85,8 +100,6 @@ namespace HtmlDataAnalyzer.App.ViewModel
                 ?.OrderByDescending(x => x.Value)
                 .Take(10)
                 .ToList();
-
-            IsLoading = false;
         }
     }
 }
