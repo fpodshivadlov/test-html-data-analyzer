@@ -69,7 +69,7 @@ namespace HtmlDataAnalyzer.Core.Parsing
                             elementHandle)
                             .ConfigureAwait(false);
 
-                        if (!string.IsNullOrEmpty(elementData.Content))
+                        if (!string.IsNullOrEmpty(elementData?.Content))
                         {
                             filteredContentItems.Add(elementData.Content);
                         }
@@ -89,18 +89,18 @@ namespace HtmlDataAnalyzer.Core.Parsing
 
             foreach (var root in roots)
             {
-                var elementHandles = await root.XPathAsync("//img")
+                var imgElementHandles = await root.XPathAsync("//img")
                     .ConfigureAwait(false);
 
-                foreach (var elementHandle in elementHandles)
+                foreach (var imgElementHandle in imgElementHandles)
                 {
-                    var isVisible = await ResolveVisibility(elementHandle, false)
+                    var isVisible = await ResolveVisibility(imgElementHandle, false)
                         .ConfigureAwait(false);
                     if (isVisible)
                     {
                         var data = await root.EvaluateFunctionAsync<ImgData>(
                                 ImgData.Expression,
-                                elementHandle)
+                                imgElementHandle)
                             .ConfigureAwait(false);
 
                         if (data?.Base64Png != null)
@@ -108,6 +108,31 @@ namespace HtmlDataAnalyzer.Core.Parsing
                             result.Add(new ImageDataModel
                             {
                                 Name = data.Alt,
+                                PngImage = Convert.FromBase64String(data.Base64Png),
+                            });
+                        }
+                    }
+                }
+
+                var elementHandles = await root.XPathAsync("//*")
+                    .ConfigureAwait(false);
+
+                foreach (var elementHandle in elementHandles)
+                {
+                    var isVisible = await ResolveVisibility(elementHandle)
+                        .ConfigureAwait(false);
+                    if (isVisible)
+                    {
+                        var data = await root.EvaluateFunctionAsync<BackgroundImageElement>(
+                                BackgroundImageElement.Expression,
+                                elementHandle)
+                            .ConfigureAwait(false);
+
+                        if (data?.Base64Png != null)
+                        {
+                            result.Add(new ImageDataModel
+                            {
+                                Name = data.InnerText,
                                 PngImage = Convert.FromBase64String(data.Base64Png),
                             });
                         }
