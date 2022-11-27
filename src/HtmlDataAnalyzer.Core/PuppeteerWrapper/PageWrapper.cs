@@ -18,7 +18,7 @@ namespace HtmlDataAnalyzer.Core.PuppeteerWrapper
 
         public Task<T?> EvaluateFunctionAsync<T>(string script, params object[] args)
         {
-            return inner.EvaluateFunctionAsync<T>(script, args);
+            return inner.EvaluateFunctionAsync<T?>(script, args);
         }
     }
 }

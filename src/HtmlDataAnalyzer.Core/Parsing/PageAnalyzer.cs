@@ -94,7 +94,7 @@ namespace HtmlDataAnalyzer.Core.Parsing
 
                 foreach (var imgElementHandle in imgElementHandles)
                 {
-                    var isVisible = await ResolveVisibility(imgElementHandle, false)
+                    var isVisible = await ResolveVisibility(imgElementHandle, true)
                         .ConfigureAwait(false);
                     if (isVisible)
                     {
@@ -103,7 +103,7 @@ namespace HtmlDataAnalyzer.Core.Parsing
                                 imgElementHandle)
                             .ConfigureAwait(false);
 
-                        if (data?.Base64Png != null)
+                        if (data?.Base64Png != null && data.Visible == true)
                         {
                             result.Add(new ImageDataModel
                             {

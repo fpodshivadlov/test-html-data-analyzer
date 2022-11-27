@@ -18,6 +18,6 @@ internal class IframeWrapper : IRootWrapper
 
     public Task<T?> EvaluateFunctionAsync<T>(string script, params object[] args)
     {
-        return inner.EvaluateFunctionAsync<T>(script, args);
+        return inner.EvaluateFunctionAsync<T?>(script, args);
     }
 }

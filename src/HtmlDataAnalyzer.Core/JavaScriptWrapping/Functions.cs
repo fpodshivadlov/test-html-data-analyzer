@@ -31,5 +31,14 @@ function (element) {
 
     return null;
 }";
+
+        internal const string GetVisibility = @"
+function (element) {
+    var style = window.getComputedStyle(element);
+    return (style
+      && style.display !== 'none'
+      && style.visibility !== 'hidden'
+      && style.opacity !== '0') ?? false;
+}";
     }
 }
