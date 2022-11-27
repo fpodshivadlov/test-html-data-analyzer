@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace HtmlDataAnalyzer.App.View
+﻿namespace HtmlDataAnalyzer.App.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

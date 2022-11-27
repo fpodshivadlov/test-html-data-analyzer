@@ -24,7 +24,7 @@
     </Window.DataContext>
     <Grid>
         <Grid Visibility="{Binding IsLoading, Converter={StaticResource TrueVisible}, FallbackValue=Collapsed}">
-            <Label Content="Loading..." HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <mah:ProgressRing IsActive="True" />
         </Grid>
         <Grid Visibility="{Binding IsLoading, Converter={StaticResource TrueNotVisible}, FallbackValue=Collapsed}">
             <Grid.RowDefinitions>
