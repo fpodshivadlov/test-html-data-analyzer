@@ -44,7 +44,7 @@
                 <Label Grid.Row="0" Grid.Column="0" Margin="10,10,10,10" Content="Url" />
                 <TextBox Grid.Row="0" Grid.Column="1"  Margin="10,10,10,10" TextWrapping="Wrap" Text="{Binding Url}"/>
 
-                <Label Grid.Row="1" Grid.Column="0" Content="Timeout (ms)" Margin="10,10,10,10" />
+                <Label Grid.Row="1" Grid.Column="0" Content="Delay (ms)" Margin="10,10,10,10" />
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="10,10,0,10" TextWrapping="Wrap" HorizontalAlignment="Left" Width="54" Text="{Binding WaitingTimeMs}"/>
                 <Button Grid.Row="1" Grid.Column="1" Content="Analyze" Margin="0,10,10,10" Command="{Binding RunAnalysis}" HorizontalAlignment="Right" Width="90"/>
             </Grid>

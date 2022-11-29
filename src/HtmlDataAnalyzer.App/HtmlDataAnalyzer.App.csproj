@@ -17,8 +17,4 @@
     <ProjectReference Include="..\HtmlDataAnalyzer.Core\HtmlDataAnalyzer.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Utils\Command\" />
-  </ItemGroup>
-
 </Project>
