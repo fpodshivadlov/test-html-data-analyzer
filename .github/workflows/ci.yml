@@ -1,0 +1,49 @@
+name: app-ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      Wpf_Project: HtmlDataAnalyzer.App
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Use Nerdbank.GitVersioning to set version variables
+      uses: dotnet/nbgv@master
+      id: nbgv
+
+    - name: Install .net core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Building application
+      run: dotnet build
+      working-directory: src
+
+    - name: Execute unit tests
+      run: dotnet test
+      working-directory: src
+
+    - name: Publishing application
+      run: dotnet publish "$env:Wpf_Project" -o ./outapp
+      working-directory: src
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: Application
+        path: src/outapp
